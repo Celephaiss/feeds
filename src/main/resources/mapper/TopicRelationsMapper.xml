@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="generator.mapper.TopicRelationsMapper">
+
+    <resultMap id="BaseResultMap" type="generator.domain.TopicRelations">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="biz" column="biz" jdbcType="INTEGER"/>
+            <result property="tid" column="tid" jdbcType="INTEGER"/>
+            <result property="subjectId" column="subject_id" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,biz,tid,
+        subject_id,create_time,update_time
+    </sql>
+
+    <select id="getSubjectIdByTid" resultType="java.lang.Long">
+        select subject_id
+        from topic_relations
+        where tid = #{tid,jdbcType=INTEGER}
+        order by subject_id desc
+        limit #{limit,jdbcType=INTEGER}
+    </select>
+</mapper>
