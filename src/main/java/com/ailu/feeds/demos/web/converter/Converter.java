@@ -29,7 +29,7 @@ public class Converter {
         FeedVo feed = new FeedVo();
         feed.setContent(feeds.getContent());
         feed.setImages(Stream.of(feeds.getImages().split(",")).filter(r -> !r.isEmpty()).toList());
-        feed.setTopicIds(Stream.of(feeds.getTopicIds().split(",")).filter(r -> !r.isEmpty()).map(Integer::parseInt).toList());
+//        feed.setTopicIds(Stream.of(feeds.getTopicIds().split(",")).filter(r -> !r.isEmpty()).map(Integer::parseInt).toList());
         feed.setUid(feeds.getUid());
         return feed;
     }
