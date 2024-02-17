@@ -15,6 +15,7 @@ public class FeedVo {
     private String content;
     private List<String> images;
     private List<String> topicNames;
+    private List<TopicVo> topics;
     private Integer uid;
     private Boolean likeStatus;
     private Integer likeCount;
@@ -26,6 +27,9 @@ public class FeedVo {
 
     // 评论列表, 默认取最新的3条
     private List<CommentVo> commentVoList;
+
+
+
 }
 
 

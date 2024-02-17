@@ -3,7 +3,9 @@ package com.ailu.feeds.demos.web.service;
 import com.ailu.feeds.demos.web.converter.Converter;
 import com.ailu.feeds.demos.web.model.FeedRedisModel;
 import com.ailu.feeds.demos.web.model.LikeModel;
+import com.ailu.feeds.demos.web.vo.CommentVo;
 import com.ailu.feeds.demos.web.vo.FeedVo;
+import com.ailu.feeds.demos.web.vo.TopicVo;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import generator.domain.Feeds;
 import generator.service.FeedsService;
@@ -14,6 +16,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -25,6 +28,9 @@ public class FeedService {
 
     @Resource
     TopicService topicService;
+
+    @Resource
+    CommentService commentService;
 
     @Resource
     LikeModel feedLikeModel;
@@ -51,7 +57,7 @@ public class FeedService {
         return true;
     }
 
-    public static String lockKey(Integer uid) {
+    public static String lockKey(Long uid) {
         return "feed:lock:" + uid;
     }
 
@@ -62,7 +68,7 @@ public class FeedService {
      * @param id  动态id
      * @return 是否点赞成功
      */
-    public Boolean like(Integer uid, String id) {
+    public Boolean like(Long uid, Long id) {
 
         String key = lockKey(uid);
         RLock lock = redissonClient.getLock(key);
@@ -92,7 +98,7 @@ public class FeedService {
      * @param id  动态id
      * @return 是否取消点赞成功
      */
-    public Boolean unlike(Integer uid, String id) {
+    public Boolean unlike(Long uid, Long id) {
         String key = lockKey(uid);
         RLock lock = redissonClient.getLock(key);
 
@@ -117,20 +123,37 @@ public class FeedService {
     /**
      * 获取动态
      *
-     * @param id 动态id
-     * @return 动态内容
+     * @param feedId 动态id
+     * @return 动态详情页
      */
-    public Feeds get(String id) {
-        // 先从缓存中获取
-        Feeds feedDetail = feedRedisModel.getFeedDetail(id);
-        if (feedDetail != null) {
-            return feedDetail;
-        }
+    public FeedVo getFeedDetail(Long uid, Long feedId) {
 
-        // 缓存中没有，从数据库中获取
-        return feedsService.getById(id);
+        Feeds feed = feedsService.getById(feedId);
+        FeedVo feedVo = Converter.ToFeed(feed);
+
+
+        // 评论列表
+        List<CommentVo> comments = commentService.getCommentsByFeedId(feedId);
+
+
+        feedVo.setCommentVoList(comments);
+
+        String[] split = feed.getTopicIds().split(",");
+        List<Long> topicIds = Arrays.stream(split).filter(r -> !r.isEmpty()).map(Long::parseLong).toList();
+
+        List<TopicVo> topicVOs = topicService.getTopicVOs(topicIds);
+
+        Boolean like = feedLikeModel.isLike(uid, feedId);
+        feedVo.setLikeStatus(like);
+        Integer l = feedLikeModel.likeCount(feedId);
+        feedVo.setLikeCount(l);
+
+        feedVo.setTopics(topicVOs);
+
+        return feedVo;
 
     }
+
 
     /**
      * 更新动态

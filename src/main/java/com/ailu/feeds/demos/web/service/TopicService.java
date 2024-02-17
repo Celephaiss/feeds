@@ -1,6 +1,7 @@
 package com.ailu.feeds.demos.web.service;
 
 
+import com.ailu.feeds.demos.web.vo.TopicVo;
 import generator.domain.TopicRelations;
 import generator.domain.Topics;
 import generator.mapper.TopicRelationsMapper;
@@ -71,6 +72,16 @@ public class TopicService {
             return new ArrayList<>();
         }
         return topicRelationsMapper.getSubjectIdByTid(Math.toIntExact(topic.getId()), Math.toIntExact(lastFeedId), pageSize);
+    }
+
+    public List<TopicVo> getTopicVOs(List<Long> topicIds) {
+
+        if (topicIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<Topics> list = topicsService.lambdaQuery().in(Topics::getId, topicIds).list();
+        return list.stream().map(topic -> TopicVo.builder().id(topic.getId()).name(topic.getName()).build()).toList();
     }
 
 }

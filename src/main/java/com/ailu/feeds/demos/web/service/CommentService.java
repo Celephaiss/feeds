@@ -60,9 +60,9 @@ public class CommentService {
     /**
      * 回复评论
      *
-     * @param uid     用户id
-     * @param commentId      评论id
-     * @param content 回复内容
+     * @param uid       用户id
+     * @param commentId 评论id
+     * @param content   回复内容
      * @return 是否回复成功
      */
     public Boolean reply(Integer uid, Long commentId, String content) {
@@ -82,7 +82,7 @@ public class CommentService {
 
 
     // commentListSortedByTime
-    public List<CommentVo> commentListSortedByTime(Long feedId, Long lastId, Integer pageSize) {
+    public List<CommentVo> commentListSortedByTime(Long uid, Long feedId, Long lastId, Integer pageSize) {
 
         LambdaQueryChainWrapper<Comments> query = comments.lambdaQuery();
         List<Comments> list = query.eq(Comments::getBiz, 1).eq(Comments::getSubjectId, feedId).gt(Comments::getId, lastId).last("limit " + pageSize).list();
@@ -95,7 +95,7 @@ public class CommentService {
             commentVo.setUid(comment.getUid());
             commentVo.setContent(comment.getContent());
             commentVo.setPublishTime(comment.getCreateTime().getTime());
-            commentVo.setLikeStatus(commentLikeModel.isLike(comment.getId().intValue(), "1"));
+            commentVo.setLikeStatus(commentLikeModel.isLike(uid, comment.getId()));
             return commentVo;
         }).forEach(commentVoList::add);
 
@@ -117,26 +117,63 @@ public class CommentService {
 
     // commentListSortedByHot
     // TODO
-    public List<CommentVo> commentListSortedByHot(String id, Integer page, Integer pageSize) {
+    public List<CommentVo> commentListSortedByHot(Long uid, String id, Integer page, Integer pageSize) {
         return null;
     }
 
     public Map<Long, List<ReplyVo>> getRepliesByCommentIds(List<Long> commentIds) {
-        Map<Long, List<ReplyVo>> replies = repliesMapper.getTopNReplies(commentIds, 3).stream().map(reply -> ReplyVo.builder().replyId(reply.getId())
-                .feedId(reply.getSubjectId())
-                .content(reply.getContent())
-                .publishTime(reply.getCreateTime().getTime())
-                .likeStatus(commentLikeModel.isLike(reply.getId().intValue(), "2"))
-                .username("username")
-                .avatar("avatar")
-                .replyUsername("replyUsername")
-                .replyContent(reply.getContent())
-                .replyPublishTime(reply.getCreateTime().getTime())
-                .build()).collect(groupingBy(ReplyVo::getId));
+
+        List<Replies> topNReplies = repliesMapper.getTopNReplies(commentIds, 3);
+
+        if (topNReplies == null || topNReplies.isEmpty()) {
+            return Map.of();
+        }
+
+        Map<Long, List<Replies>> collect = topNReplies.stream().collect(groupingBy(Replies::getId));
+        System.out.println(collect);
+
+
+
+        Map<Long, List<ReplyVo>> replies = topNReplies.stream().map(reply ->
+                ReplyVo.builder().replyId(reply.getId())
+                        .feedId(reply.getSubjectId())
+                        .content(reply.getContent())
+                        .username("username")
+                        .avatar("avatar")
+                        .replyUsername("replyUsername")
+                        .replyContent(reply.getContent())
+                        .commentId(reply.getCommentId())
+                        .build()).collect(groupingBy(ReplyVo::getFeedId));
 
         replies.forEach((k, v) -> v.sort((o1, o2) -> o2.getId().compareTo(o1.getId())));
         return replies;
     }
 
 
+    public List<CommentVo> getCommentsByFeedId(Long feedId) {
+        LambdaQueryChainWrapper<Comments> query = comments.lambdaQuery();
+        List<Comments> list = query.eq(Comments::getSubjectId, feedId).list();
+
+        List<CommentVo> commentVoList = new ArrayList<>();
+        list.stream().map(comment -> CommentVo.builder().id(comment.getId())
+                .feedId(comment.getSubjectId())
+                .uid(comment.getUid())
+                .content(comment.getContent())
+//                .publishTime(comment.getCreateTime().getTime())
+                .likeStatus(commentLikeModel.isLike(1L, comment.getId()))
+                .build()).forEach(commentVoList::add);
+
+        List<Long> commentIds = list.stream().map(Comments::getId).toList();
+
+        Map<Long, List<ReplyVo>> repliesByCommentIds = getRepliesByCommentIds(commentIds);
+
+        commentVoList.forEach(commentVo -> {
+            List<ReplyVo> replies = repliesByCommentIds.get(commentVo.getId());
+            if (replies != null) {
+                commentVo.setReplyVoList(replies);
+            }
+        });
+
+        return commentVoList;
+    }
 }

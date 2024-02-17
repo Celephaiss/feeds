@@ -11,6 +11,7 @@ public class ReplyVo {
     private Long id;
     private Long feedId;
     private Integer uid;
+    private Long commentId;
     private String content;
     private Long publishTime;
     private Boolean likeStatus;

@@ -72,5 +72,11 @@ public class FeedsController {
         return feedsService.updateById(feeds);
     }
 
+    // 获取动态详情
+    @GetMapping("/detail/{uid}/{feedId}")
+    public FeedVo detail(@PathVariable Long uid, @PathVariable Long feedId) {
+        return feed.getFeedDetail(uid, feedId);
+    }
+
 
 }
