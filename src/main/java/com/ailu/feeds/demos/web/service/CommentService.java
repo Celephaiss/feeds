@@ -129,11 +129,6 @@ public class CommentService {
             return Map.of();
         }
 
-        Map<Long, List<Replies>> collect = topNReplies.stream().collect(groupingBy(Replies::getId));
-        System.out.println(collect);
-
-
-
         Map<Long, List<ReplyVo>> replies = topNReplies.stream().map(reply ->
                 ReplyVo.builder().replyId(reply.getId())
                         .feedId(reply.getSubjectId())
@@ -143,7 +138,7 @@ public class CommentService {
                         .replyUsername("replyUsername")
                         .replyContent(reply.getContent())
                         .commentId(reply.getCommentId())
-                        .build()).collect(groupingBy(ReplyVo::getFeedId));
+                        .build()).collect(groupingBy(ReplyVo::getCommentId));
 
         replies.forEach((k, v) -> v.sort((o1, o2) -> o2.getId().compareTo(o1.getId())));
         return replies;
