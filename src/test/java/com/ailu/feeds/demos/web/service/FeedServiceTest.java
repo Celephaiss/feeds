@@ -16,6 +16,6 @@ class FeedServiceTest {
 
     @Test
     void getFeedDetail() {
-        System.out.println(feedService.getFeedDetail(30010585L, 5L));
+        System.out.println(feedService.getFeedDetail(30010584L, 7L));
     }
 }

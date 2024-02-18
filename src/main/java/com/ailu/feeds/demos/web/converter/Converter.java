@@ -1,5 +1,6 @@
 package com.ailu.feeds.demos.web.converter;
 
+import com.ailu.feeds.demos.web.vo.FeedRequest;
 import com.ailu.feeds.demos.web.vo.FeedVo;
 import generator.domain.Feeds;
 
@@ -12,13 +13,26 @@ public class Converter {
     public static Feeds ToFeeds(FeedVo feed) {
 
         Feeds feeds = new Feeds();
-        feeds.setId(1L);
-        feeds.setBiz(1);
+//        feeds.setId(1L);
+//        feeds.setBiz(1);
         feeds.setContent(feed.getContent());
         feeds.setImages(String.join(",", feed.getImages()));
 
         List<String> topicList = feed.getTopicNames().stream().map(String::valueOf).toList();
         feeds.setTopicIds(String.join(",", topicList));
+        feeds.setUid(feed.getUid());
+        feeds.setCreateTime(new Date());
+        feeds.setUpdateTime(new Date());
+        return feeds;
+    }
+
+    public static Feeds ToFeeds2(FeedRequest feed) {
+
+        Feeds feeds = new Feeds();
+
+        feeds.setContent(feed.getContent());
+        feeds.setImages(String.join(",", feed.getImages()));
+
         feeds.setUid(feed.getUid());
         feeds.setCreateTime(new Date());
         feeds.setUpdateTime(new Date());

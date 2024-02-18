@@ -3,9 +3,7 @@ package com.ailu.feeds.demos.web.controller;
 
 import com.ailu.feeds.demos.web.service.CommentService;
 import com.ailu.feeds.demos.web.service.FeedService;
-import com.ailu.feeds.demos.web.vo.CommentRequest;
-import com.ailu.feeds.demos.web.vo.FeedVo;
-import com.ailu.feeds.demos.web.vo.Response;
+import com.ailu.feeds.demos.web.vo.*;
 import generator.domain.Feeds;
 import generator.service.FeedsService;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -34,7 +32,7 @@ public class FeedsController {
     FeedService feed;
 
     @PostMapping("/publish")
-    public Response<Boolean> publish(@RequestBody FeedVo feed) {
+    public Response<Boolean> publish(@RequestBody FeedRequest feed) {
 
         feedService.publish(feed);
         return new Response<>(200, "success", true);
@@ -90,9 +88,11 @@ public class FeedsController {
     }
 
     // 回复
-//    @PostMapping("/reply")
-//    public Boolean reply(@RequestBody CommentRequest request) {
-//        return commentService.reply(request.getUid(), request.getToUid(), request.getBiz(), request.getFeedId(), request.getContent());
-//    }
+    @PostMapping("/reply")
+    public Boolean reply(@RequestBody ReplyRequest request) {
+        return commentService.reply(request.getFromUid(), request.getToUid(), request.getBiz(), request.getCommentId(), request.getReplyId(), request.getContent());
+    }
+
+
 
 }

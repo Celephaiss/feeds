@@ -75,9 +75,10 @@ public class CommentService {
      * @param toUid     被回复用户id
      * @param commentId 评论id
      * @param content   回复内容
+     * @param replyId   回复id
      * @return 是否回复成功
      */
-    public Boolean reply(Integer fromUid, Integer toUid, Integer biz, Long commentId, String content) {
+    public Boolean reply(Integer fromUid, Integer toUid, Integer biz, Long commentId, Long replyId, String content) {
 
         Replies reply = new Replies();
         reply.setFromUid(fromUid);
@@ -85,10 +86,29 @@ public class CommentService {
         reply.setBiz(biz);
         reply.setCommentId(commentId);
         reply.setContent(content);
+        reply.setReplyId(replyId);
         return replies.save(reply);
 
-
     }
+
+    /**
+     * 回复列表
+     *
+     * @param commentId   评论id
+     * @param lastReplyId 最后一条回复的id
+     * @param pageSize    页大小
+     */
+    public List<ReplyVo> replyList(Long commentId, Long lastReplyId, Integer pageSize) {
+
+        List<Replies> list = replies.lambdaQuery()
+                .eq(Replies::getCommentId, commentId)
+                .gt(Replies::getId, lastReplyId)
+                .orderByAsc(Replies::getId)
+                .last("limit " + pageSize).list();
+
+        return List.of();
+    }
+
 
     /**
      * 删除回复
@@ -140,22 +160,25 @@ public class CommentService {
         }
 
 
-        List<Replies> topNReplies = repliesMapper.getTopNReplies(commentIds, 3);
+        List<Replies> topNReplies = repliesMapper.getTopNReplies(commentIds, 4);
 
         if (topNReplies == null || topNReplies.isEmpty()) {
             return Map.of();
         }
 
         Map<Long, List<ReplyVo>> replies = topNReplies.stream().map(reply ->
-                ReplyVo.builder().replyId(reply.getId())
+                ReplyVo.builder()
+                        .id(reply.getId())
+                        .replyId(reply.getReplyId())
                         .feedId(reply.getSubjectId())
                         .content(reply.getContent())
                         .username("username")
                         .avatar("avatar")
                         .replyUsername("replyUsername")
-                        .replyContent(reply.getContent())
                         .commentId(reply.getCommentId())
-                        .build()).collect(groupingBy(ReplyVo::getCommentId));
+                        .build()
+        ).collect(groupingBy(ReplyVo::getCommentId));
+
 
         replies.forEach((k, v) -> v.sort((o1, o2) -> o2.getId().compareTo(o1.getId())));
         return replies;

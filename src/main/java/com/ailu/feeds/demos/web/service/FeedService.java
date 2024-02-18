@@ -4,6 +4,7 @@ import com.ailu.feeds.demos.web.converter.Converter;
 import com.ailu.feeds.demos.web.model.FeedRedisModel;
 import com.ailu.feeds.demos.web.model.LikeModel;
 import com.ailu.feeds.demos.web.vo.CommentVo;
+import com.ailu.feeds.demos.web.vo.FeedRequest;
 import com.ailu.feeds.demos.web.vo.FeedVo;
 import com.ailu.feeds.demos.web.vo.TopicVo;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
@@ -190,8 +191,8 @@ public class FeedService {
     }
 
     // 发布动态
-    public void publish(FeedVo feed) {
-        Feeds feeds = Converter.ToFeeds(feed);
+    public void publish(FeedRequest feed) {
+        Feeds feeds = Converter.ToFeeds2(feed);
 
         Long feedId = genFeedId();
         feeds.setId(feedId);
@@ -211,12 +212,6 @@ public class FeedService {
     // TODO 改成snowflake id
     private Long genFeedId() {
         return stringRedisTemplate.opsForValue().increment("feeds:count", 1);
-    }
-
-
-    // TODO
-    private List<FeedVo> getFeedVos(List<Feeds> feeds) {
-        return feeds.stream().map(Converter::ToFeed).toList();
     }
 
 

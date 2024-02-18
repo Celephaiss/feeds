@@ -12,22 +12,29 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FeedVo {
-    private String content;
-    private List<String> images;
+    private Long id; // 动态id
+
+    private Integer uid; // 用户uid
+    private String username;  // 用户名
+    private String avatar; // 用户头像
+
+    private String content; // 动态内容
+    private List<String> images; // 动态图片
+
+    @Deprecated
     private List<String> topicNames;
+
     private List<TopicVo> topics;
-    private Integer uid;
+
     private Boolean likeStatus;
     private Integer likeCount;
-    private Long publishTime;
-    private Long AuditStatus;
-    private String username;
-    private String avatar;
-    private Integer commentCount;
 
-    // 评论列表, 默认取最新的3条
-    private List<CommentVo> commentVoList;
+    private Long publishTime; // 发布时间
 
+//    private Long AuditStatus;
+
+    private Integer commentCount; // 总评论数
+    private List<CommentVo> commentVoList; // 评论列表, 默认取最新的3条
 
 
 }

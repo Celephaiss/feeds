@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @Builder
 public class TopicVo {
-    Long id;
-    String name;
+    Long id; // 话题id
+    String name; // 话题名
 }

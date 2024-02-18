@@ -13,20 +13,21 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class CommentVo {
-    private Long id;
-    private Long feedId;
-    private Integer uid;
-    private String content;
-    private Long publishTime;
-    private Boolean likeStatus;
-    private Integer likeCount;
-    private String username;
-    private String avatar;
-    private Integer replyCount;
-    private Integer replyId;
-    private String replyUsername;
-    private String replyContent;
-    private Long replyPublishTime;
+    private Long id; // 评论id
+    private Long feedId; // 动态id
+
+    private Integer uid; // 发布评论的用户uid
+    private String username; // 用户名
+    private String avatar; // 用户头像
+
+    private String content;  // 评论内容
+
+    private Boolean likeStatus; // 用户是否点赞评论
+    private Integer likeCount; // 评论的点赞数
+
+
+    private Long publishTime; // 评论的发布时间
+
 
     // 回复列表, 默认取最新的3条
     private List<ReplyVo> replyVoList;
