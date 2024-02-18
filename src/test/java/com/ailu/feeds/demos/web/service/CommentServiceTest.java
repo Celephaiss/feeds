@@ -15,7 +15,7 @@ class CommentServiceTest {
 
     @Test
     void getCommentsByFeedId() {
-        System.out.println(commentService.getCommentsByFeedId(4L));
+        System.out.println(commentService.getCommentsByFeedId(4L,0L,10));
     }
 
     @Test

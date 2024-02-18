@@ -133,7 +133,7 @@ public class FeedService {
 
 
         // 评论列表
-        List<CommentVo> comments = commentService.getCommentsByFeedId(feedId);
+        List<CommentVo> comments = commentService.getCommentsByFeedId(feedId, 0L, 10);
 
 
         feedVo.setCommentVoList(comments);

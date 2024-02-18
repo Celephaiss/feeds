@@ -162,17 +162,26 @@ public class CommentService {
     }
 
 
-    public List<CommentVo> getCommentsByFeedId(Long feedId) {
+    /**
+     * 获取动态的评论及top3回复, 并且按时间排序
+     *
+     * @param feedId   动态id
+     * @param lastId   最后一条评论id
+     * @param pageSize 页大小
+     */
+    public List<CommentVo> getCommentsByFeedId(Long feedId, Long lastId, Integer pageSize) {
         LambdaQueryChainWrapper<Comments> query = comments.lambdaQuery();
-        List<Comments> list = query.eq(Comments::getSubjectId, feedId).list();
+        List<Comments> list = query.eq(Comments::getSubjectId, feedId)
+                .gt(Comments::getId, lastId)
+                .orderByAsc(Comments::getId)
+                .last("limit " + pageSize)
+                .list();
 
         List<CommentVo> commentVoList = new ArrayList<>();
         list.stream().map(comment -> CommentVo.builder().id(comment.getId())
                 .feedId(comment.getSubjectId())
                 .uid(comment.getUid())
                 .content(comment.getContent())
-//                .publishTime(comment.getCreateTime().getTime())
-//                .likeStatus(commentLikeModel.isLike(1L, comment.getId()))
                 .build()).forEach(commentVoList::add);
 
         return getCommentVoList(list, commentVoList);
