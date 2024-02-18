@@ -179,10 +179,13 @@ public class FeedService {
     }
 
     // 动态广场列表
-    public List<Feeds> list(Integer lastId, Integer pageSize) {
+    // TODO 缓存
+    public List<FeedVo> list(Integer lastId, Integer pageSize) {
         // zset 有序集合 缓存前1000条动态详情 json
         List<String> list = feedRedisModel.getSquareFeedIds(lastId, pageSize);
-        return feedRedisModel.mGetFeedDetail(list);
+        List<Feeds> feeds = feedRedisModel.mGetFeedDetail(list);
+
+        return feeds.stream().map(Converter::ToFeed).toList();
     }
 
     // 发布动态
@@ -202,6 +205,12 @@ public class FeedService {
     // TODO 改成snowflake id
     private Long genFeedId() {
         return stringRedisTemplate.opsForValue().increment("feeds:count", 1);
+    }
+
+
+    // TODO
+    private List<FeedVo> getFeedVos(List<Feeds> feeds) {
+        return feeds.stream().map(Converter::ToFeed).toList();
     }
 
 
