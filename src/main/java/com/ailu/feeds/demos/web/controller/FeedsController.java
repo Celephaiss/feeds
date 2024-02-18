@@ -1,7 +1,9 @@
 package com.ailu.feeds.demos.web.controller;
 
 
+import com.ailu.feeds.demos.web.service.CommentService;
 import com.ailu.feeds.demos.web.service.FeedService;
+import com.ailu.feeds.demos.web.vo.CommentRequest;
 import com.ailu.feeds.demos.web.vo.FeedVo;
 import com.ailu.feeds.demos.web.vo.Response;
 import generator.domain.Feeds;
@@ -18,6 +20,9 @@ public class FeedsController {
 
     @Resource
     FeedsService feedsService;
+
+    @Resource
+    CommentService commentService;
 
     @Resource
     FeedService feedService;
@@ -78,7 +83,16 @@ public class FeedsController {
         return feed.getFeedDetail(uid, feedId);
     }
 
+    // 评论动态
+    @PostMapping("/comment")
+    public Boolean comment(@RequestBody CommentRequest request) {
+        return commentService.comment(request.getUid(), request.getBiz(), request.getFeedId(), request.getContent());
+    }
 
-
+    // 回复
+//    @PostMapping("/reply")
+//    public Boolean reply(@RequestBody CommentRequest request) {
+//        return commentService.reply(request.getUid(), request.getToUid(), request.getBiz(), request.getFeedId(), request.getContent());
+//    }
 
 }

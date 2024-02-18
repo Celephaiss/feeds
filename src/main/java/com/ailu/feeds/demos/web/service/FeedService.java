@@ -14,6 +14,7 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
@@ -195,10 +196,15 @@ public class FeedService {
         Long feedId = genFeedId();
         feeds.setId(feedId);
 
-        feedsService.save(feeds);
 
         List<Long> topicIds = topicService.publish(feed.getTopicNames());
+
+        feeds.setTopicIds(String.join(",", topicIds.stream().map(String::valueOf).toList()));
+
+        feedsService.save(feeds);
+
         topicService.saveRelations(feedId, topicIds);
+
 
     }
 
