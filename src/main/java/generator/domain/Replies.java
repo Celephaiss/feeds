@@ -42,6 +42,11 @@ public class Replies implements Serializable {
     private Long commentId;
 
     /**
+     * 回复的回复id
+     */
+    private Long replyId;
+
+    /**
      * 回复用户id
      */
     private Integer fromUid;

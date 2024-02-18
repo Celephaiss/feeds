@@ -10,6 +10,7 @@
             <result property="typ" column="typ" jdbcType="TINYINT"/>
             <result property="subjectId" column="subject_id" jdbcType="BIGINT"/>
             <result property="commentId" column="comment_id" jdbcType="BIGINT"/>
+            <result property="replyId" column="reply_id" jdbcType="BIGINT"/>
             <result property="fromUid" column="from_uid" jdbcType="INTEGER"/>
             <result property="toUid" column="to_uid" jdbcType="INTEGER"/>
             <result property="content" column="content" jdbcType="VARCHAR"/>
@@ -23,10 +24,10 @@
 
     <sql id="Base_Column_List">
         id,biz,typ,
-        subject_id,comment_id,from_uid,
-        to_uid,content,ip,
-        deleted,deleted_reason,audit_status,
-        create_time,update_time
+        subject_id,comment_id,reply_id,
+        from_uid,to_uid,content,
+        ip,deleted,deleted_reason,
+        audit_status,create_time,update_time
     </sql>
 
     <resultMap id="getTopNRepliesResultMap" type="generator.domain.Replies">
