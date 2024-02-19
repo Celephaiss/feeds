@@ -15,8 +15,8 @@ class LikeModelTest {
 
 
 //    @Test
-//    void like() {
-//        commentLikeModel.like(30010584, "1");
+//    void like.md() {
+//        commentLikeModel.like.md(30010584, "1");
 //    }
 //
 //

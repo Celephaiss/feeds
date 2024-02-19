@@ -2,10 +2,14 @@ package com.ailu.feeds.demos.web.converter;
 
 import com.ailu.feeds.demos.web.vo.FeedRequest;
 import com.ailu.feeds.demos.web.vo.FeedVo;
+import com.google.common.base.Joiner;
 import generator.domain.Feeds;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Stream;
 
 public class Converter {
@@ -31,7 +35,12 @@ public class Converter {
         Feeds feeds = new Feeds();
 
         feeds.setContent(feed.getContent());
-        feeds.setImages(String.join(",", feed.getImages()));
+
+        if (feed.getImages() != null && !feed.getImages().isEmpty()) {
+            String images = Joiner.on(",").skipNulls().join(feed.getImages());
+            feeds.setImages(images);
+        }
+
 
         feeds.setUid(feed.getUid());
         feeds.setCreateTime(new Date());

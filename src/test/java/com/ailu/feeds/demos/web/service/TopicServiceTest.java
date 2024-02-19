@@ -5,8 +5,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 
 @SpringBootTest
 class TopicServiceTest {
@@ -16,7 +14,7 @@ class TopicServiceTest {
 
     @Test
     void publish() {
-        Long hello = topicService.publish("hello2");
+        Long hello = topicService.addTopic("hello2");
         System.out.println(hello);
     }
 }

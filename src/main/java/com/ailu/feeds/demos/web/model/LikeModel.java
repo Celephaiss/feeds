@@ -20,7 +20,7 @@ public class LikeModel {
         this.biz = biz;
     }
 
-    public static final String Prefix = "like";
+    public static final String Prefix = "like.md";
 
     public String LikeSetKey(Long uid) {
         return String.format("%s:%s:{%d}", Prefix, biz, uid);

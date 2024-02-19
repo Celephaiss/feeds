@@ -1,5 +1,3 @@
-
-
 server:
   port: 8849
 
@@ -8,6 +6,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/feed
     username: root
+    password: '2533'
   redis:
     database: 0
     host: localhost

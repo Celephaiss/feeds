@@ -30,7 +30,7 @@ public class TopicService {
     private TopicRelationsMapper topicRelationsMapper;
 
     // 发布一个话题
-    public Long publish(String name) {
+    public Long addTopic(String name) {
 
         Topics topic = topicsMapper.getByName(name);
 
@@ -47,8 +47,8 @@ public class TopicService {
     }
 
     // 发布多个话题
-    public List<Long> publish(List<String> names) {
-        return names.stream().map(this::publish).toList();
+    public List<Long> addTopic(List<String> names) {
+        return names.stream().map(this::addTopic).toList();
     }
 
     // 保存话题关系
