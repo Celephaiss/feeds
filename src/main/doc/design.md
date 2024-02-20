@@ -32,6 +32,14 @@
   - [需求点](#需求点-3)
   - [详细设计](#详细设计-2)
     - [数据库](#数据库-1)
+    - [缓存](#缓存)
+      - [id缓存](#id缓存)
+      - [评论内容缓存](#评论内容缓存)
+  - [详细设计](#详细设计-3)
+    - [按时间获取评论列表 可以用数据库index](#按时间获取评论列表-可以用数据库index)
+    - [按热度获取评论列表 点赞数经常变,所以只能用redis zset](#按热度获取评论列表-点赞数经常变所以只能用redis-zset)
+    - [存储设计](#存储设计)
+    - [缓存设计](#缓存设计)
 
 # 点赞系统设计
 
@@ -40,6 +48,7 @@
 + 点赞/取消点赞
 + 批量查询点赞状态
 + 批量查询点赞数
++ 查询最近的点赞记录 500条
 
 ## 存储
 
@@ -88,22 +97,22 @@ create table likes_cnt
 
 ### redis
 
-|        |             | 备注               |
-|--------|-------------|------------------|
-| 用途     | 缓存用户最近点赞的动态 |                  |
-| 结构     | zset        |                  |
-| key    | likes:{uid} |                  |
-| member | eid         | 被点赞的实体id         |
-| score  | timestamp   | 点赞时间             |
-| expire | -1          | 不过期              |
-| 长度     | 1000        | 写入数据时截取超过1000的数据 |
+|        |                        | 备注                         |
+| ------ | ---------------------- | ---------------------------- |
+| 用途   | 缓存用户最近点赞的动态 |                              |
+| 结构   | zset                   |                              |
+| key    | likes:{uid}            |                              |
+| member | eid                    | 被点赞的实体id               |
+| score  | timestamp              | 点赞时间                     |
+| expire | -1                     | 不过期                       |
+| 长度   | 1000                   | 写入数据时截取超过1000的数据 |
 
-|        |                 | 备注                 |
-|--------|-----------------|--------------------|
-| 用途     | 缓存实体的点赞数        |                    |
-| 结构     | string          |                    |
-| key    | likes:cnt:{eid} |                    |
-| value  | 点赞数             |                    |
+|        |                  | 备注                          |
+| ------ | ---------------- | ----------------------------- |
+| 用途   | 缓存实体的点赞数 |                               |
+| 结构   | string           |                               |
+| key    | likes:cnt:{eid}  |                               |
+| value  | 点赞数           |                               |
 | expire | 7天              | 每次更新数据时,同时更新expire |
 
 ## 流程
@@ -128,6 +137,7 @@ sequenceDiagram
     end
 
     srv ->> mq: 发送点赞mq消息
+    
     note right of mq: 顺序消息
     mq ->> srv: 返回消息是否发送成功
     opt 消息发送失败
@@ -146,6 +156,8 @@ sequenceDiagram
 
 
 ```
+
+
 
 ### 取消点赞
 
@@ -389,15 +401,34 @@ mysql缓存
 + 发表评论
 + 回复“评论”, 回复“回复”
 + 删除评论/回复
-+ 获取总评论数
-+ 分页获取评论列表
++ 评论计数
++ 按时间获取评论列表 可以用数据库index
++ 按热度获取评论列表 点赞数经常变,所以只能用redis zset
 + 分页获取回复列表
 
 ## 详细设计
 
 ### 数据库
 
+评论表和回复表
+
+要维护评论区的计数和每个评论的计数
+
 ```sql
+
+create table subject
+(
+    id         bigint auto_increment comment '主键'
+        primary key,
+    biz        int    default 0 not null comment '业务id',
+    subject_id bigint default 0 not null comment '被评论的主题id',
+    comment_id bigint default 0 not null comment '评论id',
+    count      int    default 0 not null comment '总评论数(包括回复)',
+    root_count int    default 0 not null comment '评论数(不包括回复)'
+) comment '评论区表'
+;
+
+
 -- auto-generated definition
 create table comments
 (
@@ -448,12 +479,76 @@ create index idx_uid
 
 ```
 
+### 缓存
+
+#### id缓存
+
+评论id缓存, 回复id缓存
+
+zset
+
+value comment id
+score timestamp评论时间 或like count
+expire 24h
+
+#### 评论内容缓存
+
+一级评论内容, 二级评论内容
+
+key
+cmt:content:biz:{id} biz是业务id, 比如动态正文, 动态评论, 动态回复, id是实体id
+value
+评论内容 json
+expire 24h
+
+binlog消费, 更新重建缓存
+
+## 详细设计
+
+### 按时间获取评论列表 可以用数据库index
+
+### 按热度获取评论列表 点赞数经常变,所以只能用redis zset
+
+### 存储设计
+
+### 缓存设计
+
+热评几乎完全依赖sorted set这样的数据结构，预先计算好排序分数并写入。于是在架构设计上，新增了feed-service和feed-job来支撑热评列表的读写
+![img.png](img.png)
+
+如果一个很老的视频, 很久没人访问他, 那么他在redis中的缓存肯定失效了,
+假如这时候突然有人访问他, 这时候要重建他的评论区缓存, 如果他的评论区很大, 需要全量的重建吗?
+
+数据库更新后，程序主动写缓存和 binlog 刷缓存，都采用删除缓存而非直接更新的方式，避免并发写操作时，特别是诸如 binlog
+延迟、网络抖动等异常场景下的数据错乱。那大量写操作后读操作缓存命中率低的问题如何解决呢？此时可以利用 singleflight
+进行控制，防止缓存击穿。
+
+![img_1.png](img_1.png)
+![img_2.png](img_2.png)
+
+内容社区有比较重的前置操作, 所以发帖需要异步.
+
+1. 比如风控(拦截打广告用户,其他平台拉人等, 大数据风控更具ip,uid,手机号之类的进行拦截)
+2. 文本敏感词校验 (大数据接口)
+3. 写db落库
+4. 送审
+
+异步操作如何保证用户体验.
+
+1. 前端调用接口后, 马上再页面上显示用户的评论
+2. 服务端保证2s内即时刷新缓存. 保证用户体验. 中间过程有问题就发站内信提示用户.
+
+新增评论的刷新通过 zadd, zrem
+
+zadd和zrem是幂等的
 
 
+非幂等更新是, 监听到binlog后对缓存的操作是删除, 然后读操作是重新写入缓存
 
 
+ret = exire key 1000
+if ret:
+    zadd xxx id
 
-
-
-
-
+先新增评论, 再删除评论
+然后binlog延迟
