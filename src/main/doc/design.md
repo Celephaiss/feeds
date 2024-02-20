@@ -417,62 +417,49 @@ create table comment_subject
 (
     id          bigint auto_increment comment '主键'
         primary key,
-    biz         int    default 0 not null comment '业务类型id',
-    subject_id  bigint default 0 not null comment '被评论的主题id',
-    subject_uid int    default 0 not null comment '被评论的主题用户id',
-    count       int    default 0 not null comment '总评论数(包括回复)',
-    root_count  int    default 0 not null comment '评论数(不包括回复)'
-) comment '评论区表'
-;
+    biz         int       default 0                 not null comment '业务类型id',
+    subject_id  bigint    default 0                 not null comment '被评论的主题id',
+    subject_uid int       default 0                 not null comment '被评论的主题用户id',
+    count       int       default 0                 not null comment '总评论数(包括回复)',
+    root_count  int       default 0                 not null comment '评论数(不包括回复)',
+    create_time timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 
+) comment '评论主题表';
 
 -- auto-generated definition
-create table comments
+create table comment_index
 (
     id             bigint auto_increment comment '评论id'
         primary key,
     biz            int          default 0                 not null comment '业务id',
-    subject_id     bigint       default 0                 not null comment '主题id',
-    uid            int          default 0                 not null comment '评论用户uid',
-    content        varchar(255) default ''                not null comment '评论内容',
-    ip             varchar(255) default ''                not null comment '发帖地址',
+    subject_id     bigint       default 0                 not null comment '评论主题id',
+    uid            int          default 0                 not null comment '发表者用户id',
+    parent         int          default 0                 not null comment '父评论id',
+    root           int          default 0                 not null comment '根评论id',
+    floor          int unsigned default 0                 not null comment '楼层',
+    count          int          default 0                 not null comment '评论的回复数',
     deleted        tinyint      default 0                 not null comment '删除 0 否 1 是',
     deleted_reason tinyint      default 0                 not null comment '删除原因 0 未删除 1 用户主动删除 2 审核不通过删除',
     audit_status   tinyint      default 0                 not null comment '审核状态 0 审核中 1 审核通过 2 审核不通过',
     create_time    timestamp    default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time    timestamp    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 )
-    comment '评论表';
-
-create index idx_uid
-    on comments (uid);
-
--- auto-generated definition
-create table replies
-(
-    id             bigint auto_increment comment '回复id'
-        primary key,
-    biz            int          default 0                 not null comment '业务id',
-    typ            tinyint      default 0                 not null comment '回复类型 0 回复“评论” 1 回复“回复”',
-    eid            bigint       default 0                 not null comment '主题id  冗余的动态 id',
-    comment_id     bigint       default 0                 not null comment '回复的评论id',
-    reply_id       bigint       default 0                 not null comment '回复的回复id',
-    from_uid       int          default 0                 not null comment '回复用户id',
-    to_uid         int          default 0                 not null comment '被回复用户id',
-    content        varchar(255) default ''                not null comment '回复内容',
-    ip             varchar(255) default ''                not null comment 'ip地址',
-    deleted        tinyint      default 0                 not null comment '删除 0 否 1 是',
-    deleted_reason tinyint      default 0                 not null comment '删除原因 0 未删除 1 用户主动删除 2 审核不通过删除',
-    audit_status   tinyint      default 0                 not null comment '审核状态 0 审核中 1 审核通过 2 审核不通过',
-    create_time    timestamp    default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time    timestamp    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
-)
-    comment '回复表';
+    comment '评论索引表';
 
 create index idx_uid
     on replies (from_uid);
 
 
+create table comment_content
+(
+    comment_id  bigint auto_increment comment '评论id'
+        primary key,
+    content     varchar(255) default ''                not null comment '评论内容',
+    ip          bigint       default ''                not null comment 'ip地址',
+    create_time timestamp    default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time timestamp    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
+)
 
 ```
 
