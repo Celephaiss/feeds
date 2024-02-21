@@ -411,6 +411,10 @@ mysql缓存
 
 要维护评论区的计数和每个评论的计数
 
+### 麻烦问题
+
+热度排序, 深分页问题
+
 ```sql
 
 create table comment_subject
@@ -535,3 +539,14 @@ zadd xxx id
 
 先新增评论, 再删除评论
 然后binlog延迟
+
+# bilibili
+
+热度排序, session id 服务端去重
+服务端用redis的set存看过的评论id和用户看过的进度.
+
+服务端存储用于翻页的进度. 进度数据存储再redis中, 用session id作为key.
+
+用户请求第一页评论时, 服务端生产一个session id, 以此作为key存储用户看过的评论id集合和用户看到页码
+用户每用session id请求评论时, 服务端根据session id取出用户看过的评论id集合和用户看到的页码, 从数据库中取出下一页评论, 然后过滤掉用户看过的评论id, 返回给用户
+
