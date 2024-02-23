@@ -1,63 +1,63 @@
 - [点赞系统设计](#点赞系统设计)
-  - [需求点](#需求点)
-  - [存储设计](#存储设计)
-    - [点赞记录表](#点赞记录表)
-    - [点赞计数表](#点赞计数表)
-    - [点赞流水表](#点赞流水表)
-  - [缓存设计](#缓存设计)
-  - [mq设计](#mq设计)
-    - [消息格式](#消息格式)
-  - [流程](#流程)
-    - [点赞流程](#点赞流程)
-    - [取消点赞](#取消点赞)
-    - [批量查询点赞状态](#批量查询点赞状态)
-    - [批量查询点赞数](#批量查询点赞数)
+    - [需求点](#需求点)
+    - [存储设计](#存储设计)
+        - [点赞记录表](#点赞记录表)
+        - [点赞计数表](#点赞计数表)
+        - [点赞流水表](#点赞流水表)
+    - [缓存设计](#缓存设计)
+    - [mq设计](#mq设计)
+        - [消息格式](#消息格式)
+    - [流程](#流程)
+        - [点赞流程](#点赞流程)
+        - [取消点赞](#取消点赞)
+        - [批量查询点赞状态](#批量查询点赞状态)
+        - [批量查询点赞数](#批量查询点赞数)
 - [用户关注系统设计](#用户关注系统设计)
-  - [需求点](#需求点-1)
-  - [存储设计](#存储设计-1)
-    - [关系表](#关系表)
-    - [计数表](#计数表)
-    - [关注流水表](#关注流水表)
-  - [缓存设计](#缓存设计-1)
-    - [关注状态缓存](#关注状态缓存)
-  - [mq设计](#mq设计-1)
-    - [消息格式](#消息格式-1)
-  - [详细设计](#详细设计)
-    - [关注](#关注)
-    - [取消关注](#取消关注)
-    - [获取关注数](#获取关注数)
-    - [批量获取关注状态](#批量获取关注状态)
-    - [分页获取关注列表](#分页获取关注列表)
-    - [获取朋友列表](#获取朋友列表)
-    - [分页获取粉丝列表](#分页获取粉丝列表)
-    - [获取关注数/获取粉丝数](#获取关注数获取粉丝数)
-    - [查询全量粉丝列表](#查询全量粉丝列表)
-  - [优化](#优化)
-    - [热点检测工具](#热点检测工具)
+    - [需求点](#需求点-1)
+    - [存储设计](#存储设计-1)
+        - [关系表](#关系表)
+        - [计数表](#计数表)
+        - [关注流水表](#关注流水表)
+    - [缓存设计](#缓存设计-1)
+        - [关注状态缓存](#关注状态缓存)
+    - [mq设计](#mq设计-1)
+        - [消息格式](#消息格式-1)
+    - [详细设计](#详细设计)
+        - [关注](#关注)
+        - [取消关注](#取消关注)
+        - [获取关注数](#获取关注数)
+        - [批量获取关注状态](#批量获取关注状态)
+        - [分页获取关注列表](#分页获取关注列表)
+        - [获取朋友列表](#获取朋友列表)
+        - [分页获取粉丝列表](#分页获取粉丝列表)
+        - [获取关注数/获取粉丝数](#获取关注数获取粉丝数)
+        - [查询全量粉丝列表](#查询全量粉丝列表)
+    - [优化](#优化)
+        - [热点检测工具](#热点检测工具)
 - [动态系统设计](#动态系统设计)
-  - [需求点](#需求点-2)
-  - [存储设计](#存储设计-2)
-    - [动态表](#动态表)
-    - [redis](#redis)
-  - [详细设计](#详细设计-1)
-    - [动态发布](#动态发布)
-  - [推送系统设计](#推送系统设计)
-    - [推模式的问题](#推模式的问题)
-    - [推拉结合](#推拉结合)
-      - [方案1. 区分大v/小v(按照粉丝数),](#方案1-区分大v小v按照粉丝数)
-    - [方案2 按照用户活跃度, 活跃用户推, 不活跃用户不推.](#方案2-按照用户活跃度-活跃用户推-不活跃用户不推)
+    - [需求点](#需求点-2)
+    - [存储设计](#存储设计-2)
+        - [动态表](#动态表)
+        - [redis](#redis)
+    - [详细设计](#详细设计-1)
+        - [动态发布](#动态发布)
+    - [推送系统设计](#推送系统设计)
+        - [推模式的问题](#推模式的问题)
+        - [推拉结合](#推拉结合)
+            - [方案1. 区分大v/小v(按照粉丝数),](#方案1-区分大v小v按照粉丝数)
+        - [方案2 按照用户活跃度, 活跃用户推, 不活跃用户不推.](#方案2-按照用户活跃度-活跃用户推-不活跃用户不推)
 - [评论系统设计](#评论系统设计)
-  - [需求点](#需求点-3)
-    - [数据库](#数据库)
-    - [麻烦问题](#麻烦问题)
-    - [缓存](#缓存)
-      - [id缓存](#id缓存)
-      - [评论内容缓存](#评论内容缓存)
-    - [存储设计](#存储设计-3)
-    - [缓存设计](#缓存设计-2)
-  - [详细设计](#详细设计-2)
-    - [按时间获取评论列表 可以用数据库index](#按时间获取评论列表-可以用数据库index)
-    - [按热度获取评论列表 点赞数经常变,所以只能用redis zset](#按热度获取评论列表-点赞数经常变所以只能用redis-zset)
+    - [需求点](#需求点-3)
+        - [数据库](#数据库)
+        - [麻烦问题](#麻烦问题)
+        - [缓存](#缓存)
+            - [id缓存](#id缓存)
+            - [评论内容缓存](#评论内容缓存)
+        - [存储设计](#存储设计-3)
+        - [缓存设计](#缓存设计-2)
+    - [详细设计](#详细设计-2)
+        - [按时间获取评论列表 可以用数据库index](#按时间获取评论列表-可以用数据库index)
+        - [按热度获取评论列表 点赞数经常变,所以只能用redis zset](#按热度获取评论列表-点赞数经常变所以只能用redis-zset)
 - [bilibili](#bilibili)
 
 # 点赞系统设计
@@ -113,6 +113,21 @@ create table likes_cnt
 `select cnt from likes_cnt where eid in (12,34) and biz=1;`
 
 ### 点赞流水表
+```sql
+
+create table like_log
+(
+    id          bigint auto_increment comment '主键' primary key,
+    biz         int       default 0                 not null comment '业务类型 如“动态正文”，“动态评论”，“动态回复”',
+    from_uid    int       default 0                 not null comment '点赞人uid',
+    to_uid      int       default 0                 not null comment '被点赞人uid',
+    op_type     tinyint   default 0                 not null comment '1 点赞 2 取消点赞',
+    ip          bigint                              not null comment '客户端ip',
+    eid         bigint    default 0                 not null comment '被点赞的实体id',
+    create_time timestamp default CURRENT_TIMESTAMP not null comment '创建时间'
+) comment '点赞流水表'
+
+```
 
 ## 缓存设计
 
@@ -248,11 +263,13 @@ create table followee
 
 create table follow_cnt
 (
-    id         bigint auto_increment primary key comment '主键',
-    uid        int not null comment '用户id',
-    follow_cnt int not null comment '关注数',
-    fans_cnt   int not null comment '粉丝数',
-    friend_cnt int not null comment '朋友数'
+    id          bigint auto_increment primary key comment '主键',
+    uid         int       not null comment '用户id',
+    follow_cnt  int       not null comment '关注数',
+    fans_cnt    int       not null comment '粉丝数',
+    friend_cnt  int       not null comment '朋友数',
+    create_time timestamp not null comment '创建时间',
+    update_time timestamp not null comment '更新时间'
 );
 
 # uid加索引
@@ -269,14 +286,12 @@ create table follow_log
 (
 
     id          bigint auto_increment comment '主键',
-    app_id      int          not null comment '应用id',
-    uid         int          not null comment '用户id',
-    target      int          not null comment '目标id',
-    ip          varchar(255) not null comment '客户端ip',
-    ct          int          not null comment '客户端类型',
-    did         varchar(255) not null comment '设备id',
-    op_type     int          not null comment '1-关注，2-取消关注',
-    create_time int          not null comment '创建时间',
+    app_id      int    not null comment '应用id',
+    uid         int    not null comment '用户id',
+    target      int    not null comment '目标id',
+    ip          bigint not null comment '客户端ip',
+    op_type     int    not null comment '1-关注，2-取消关注',
+    create_time int    not null comment '创建时间',
     primary key (id)
 
 )
@@ -502,7 +517,7 @@ create table feeds
     content        varchar(255) default ''                not null comment '内容',
     images         varchar(255) default ''                not null comment '逗号分隔的图片url',
     topic_ids      varchar(255) default ''                not null comment '逗号分隔的话题id',
-    ip_address     varchar(255) default ''                not null comment '用户发帖时的地址',
+    ip             bigint       default ''                not null comment '用户发帖时的地址',
     deleted        tinyint      default 0                 not null comment '删除 0 否 1 是',
     deleted_reason tinyint      default 0                 not null comment '删除原因 0 未删除 1 用户主动删除 2 审核不通过删除',
     audit_status   tinyint      default 0                 not null comment '审核状态 0 审核中 1 审核通过 2 审核不通过',
@@ -529,13 +544,11 @@ mysql缓存
 
 ## 详细设计
 
-
 ### 动态发布
+
 + 幂等 用户多次点击发布按钮
 + 网络问题导致动态发送失败解决
 + 图片防盗链
-
-
 
 ## 推送系统设计
 
