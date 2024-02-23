@@ -1,11 +1,11 @@
 package com.ailu.follow.service;
 
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
+import org.jetbrains.annotations.NotNull;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 
@@ -17,6 +17,9 @@ public class FollowService {
 
     @Autowired
     private FollowService followService;
+
+    @Autowired
+    RocketMQTemplate rocketMQTemplate;
 
     // 关注
     private void Follow(Integer fromUid, Integer toUid) {
@@ -49,12 +52,12 @@ public class FollowService {
     }
 
     // 获取朋友数
-    private Integer GetFriendsCount(Integer uid) {
+    private @NotNull Integer GetFriendsCount(Integer uid) {
         return 0;
     }
 
     // 判断是否关注
-    private boolean IsFollow(Integer fromUid, Integer toUid) {
+    private @NotNull Boolean IsFollow(Integer fromUid, Integer toUid) {
         return false;
     }
 
