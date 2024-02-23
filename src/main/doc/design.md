@@ -164,6 +164,8 @@ sequenceDiagram
 
 # 用户关注系统设计
 
+![img_3.png](img_3.png)
+
 ## 需求点
 
 + 关注
@@ -184,61 +186,40 @@ sequenceDiagram
 ```sql
 
 # 以from_uid作为sharding key, 用户查询用户是否关注了某人, 查询用户的关注列表
-# id 主键
-# from_uid 关注者
-# to_uid 被关注者
-# is_follow 是否互关 冗余字段
-# create_time 创建时间
-# 唯一索引 from_uid, to_uid 
-# 联合索引 (from_uid, id) 
+
 
 create table fans
 (
     id          bigint auto_increment comment '主键',
-    from_uid    int     not null comment '关注者',
-    to_uid      int     not null comment '被关注者',
-    is_follow   tinyint not null comment '是否互相关注',
-    create_time int     not null comment '创建时间',
+    from_uid    int       not null comment '关注者',
+    to_uid      int       not null comment '被关注者',
+    status      tinyint   not null comment '0 无关系 1 单向关注 2 互相关注',
+    create_time timestamp not null comment '创建时间',
+    update_time timestamp not null comment '更新时间',
     primary key (id)
 );
 
-
-
 # 以to_uid作为sharding key, 查询用户的粉丝列表
-# id 主键
-# from_uid 关注者
-# to_uid 被关注者
-# is_follow 是否互关
-# create_time 创建时间
-# 唯一索引 (to_uid, from_uid)
-# 联合索引 (to_uid, id)
-#     
+
 create table followers
 (
     id          bigint auto_increment comment '主键',
-    from_uid    int     not null comment '关注者',
-    to_uid      int     not null comment '被关注者',
-    is_follow   tinyint not null comment '是否互相关注',
-    create_time int     not null comment '创建时间',
+    from_uid    int       not null comment '关注者',
+    to_uid      int       not null comment '被关注者',
+    status      tinyint   not null comment '0 无关系 1 单向关注 2 互相关注',
+    create_time timestamp not null comment '创建时间',
+    update_time timestamp not null comment '更新时间',
     primary key (id)
 );
 
 # 关注计数表
-# uid 用户id
-# follow_count 关注数
-# fan_count 粉丝数
-# friend_count 朋友数
-
-
 create table follow_cnt
 (
-    id         bigint auto_increment comment '主键',
+    id         bigint auto_increment primary key comment '主键',
     uid        int not null comment '用户id',
     follow_cnt int not null comment '关注数',
-    fan_cnt    int not null comment '粉丝数',
-    friend_cnt int not null comment '朋友数',
-    primary key (id)
-
+    fans_cnt   int not null comment '粉丝数',
+    friend_cnt int not null comment '朋友数'
 );
 
 # uid加索引
@@ -268,8 +249,6 @@ create table follow_log
     primary key (id)
 
 )
-
-
 ```
 
 ### redis
@@ -281,7 +260,7 @@ key followers:{uid}
 member uid, 
 score为关注时间
 长度 
-过期时间
+过期时间 1天, 过期后全量重建 用户关注列表有上线
 
 缓存用户的粉丝列表
 结构 zset 
@@ -299,8 +278,31 @@ score为关注时间
 
 ### 关注
 
+![img_4.png](img_4.png)
+
 1. 发mq消息
 2. 加入的redis zset关注列表, 增加自己的关注数
+
+a关注b
+
+```text
+
+点关注后 服务端发mq消息, 成功后返回关注成功.
+
+异步更新db
+followers表和fans表都要更新
+a的following_cnt增加, b的fans_cnt增加
+
+redis中的followers, fans, cnt都要更新
+
+一致性要求高
+```
+
+在local cache中维护大up主的关注列表
+
+### 热点检测工具
+
+热点检测工具
 
 ### 取消关注
 
@@ -309,6 +311,17 @@ score为关注时间
 所有的统计数据都是独立字段维护, 保证最终一致性
 
 ### 批量获取关注关系
+
+布隆过滤器挡住了大量没关系的请求.
+用hash存储关注关系还是用string存储呢?
+用hash的话, 过期只能整体过期.一个人的关系中, 只有一小部分是活跃的, 其他的都不经常用到, 用string存储, 可以单独过期.
+
+```mermaid
+
+flowchart LR
+    a --> 布隆过滤器 -->|可能有关系| redis
+    redis -->|miss| mysql -->|异步写缓存| redis
+```
 
 redis存储朋友关系
 a与b的关系
@@ -328,13 +341,24 @@ a与b的关系
 
 ### 获取粉丝列表
 
-直接查询redis,
+查粉丝数, 如果粉丝数大于redis缓存zset的长度, miss后查询mysql, 异步回填redis
+
+1. 其他人查询 只能查前几页 直接查询redis, miss后查询mysql, 异步回填redis
+2. 自己查询呢?
+3. 内部查询呢?
 
 ### 获取朋友列表 (朋友为互相关注关系)
 
 直接查询redis
 
 ### 获取关注数/获取粉丝数
+
+### 查询全量关注列表
+
+### 查询全量粉丝列表
+
+推送服务, 用于推送消息
+这个需要全量缓存吗?
 
 # 动态系统设计
 
@@ -548,5 +572,18 @@ zadd xxx id
 服务端存储用于翻页的进度. 进度数据存储再redis中, 用session id作为key.
 
 用户请求第一页评论时, 服务端生产一个session id, 以此作为key存储用户看过的评论id集合和用户看到页码
-用户每用session id请求评论时, 服务端根据session id取出用户看过的评论id集合和用户看到的页码, 从数据库中取出下一页评论, 然后过滤掉用户看过的评论id, 返回给用户
+用户每用session id请求评论时, 服务端根据session id取出用户看过的评论id集合和用户看到的页码, 从数据库中取出下一页评论,
+然后过滤掉用户看过的评论id, 返回给用户
 
+## 推送系统设计
+
+### 小v(10000)采用push模式, 往粉丝的收件箱里面写
+
+单机多个worker并发推送, 扔给每个worker一个区间 , 每个worker拿到自己的区间并推送.
+按照被推送的uid取模, 将余数相同的uid分配给同一个worker, 插入记录时批量插入.
+
+### 拉呢?
+
+推送服务维护一个大v列表.
+粉丝调接口读取第一页数据时, 从关注服务拉取关注列表. 与大v列表取交集获得用户关注的大v.
+然后拉大v的最新动态, 从自己的收件箱拉未读动态. 
