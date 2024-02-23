@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/feed
+    username: root
+    password: '2533'
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+    timeout: 1000
+  devtools:
+    livereload:
+      port: 35754
+server:
+  port: 8846
+

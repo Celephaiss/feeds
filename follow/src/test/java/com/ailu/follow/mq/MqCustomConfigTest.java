@@ -26,7 +26,7 @@ class MqCustomConfigTest {
     }
 
     @Test
-    void sendMsg(){
+    void sendMsg() {
 
         Message<String> msg = MessageBuilder.withPayload("Hello, World!").build();
 
