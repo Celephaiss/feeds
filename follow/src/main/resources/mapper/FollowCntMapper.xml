@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="generator.mapper.FollowCntMapper">
+
+    <resultMap id="BaseResultMap" type="generator.domain.FollowCnt">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="uid" column="uid" jdbcType="INTEGER"/>
+            <result property="followCnt" column="follow_cnt" jdbcType="INTEGER"/>
+            <result property="fansCnt" column="fans_cnt" jdbcType="INTEGER"/>
+            <result property="friendCnt" column="friend_cnt" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,uid,follow_cnt,
+        fans_cnt,friend_cnt
+    </sql>
+</mapper>
