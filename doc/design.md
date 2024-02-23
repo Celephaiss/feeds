@@ -1,63 +1,69 @@
 - [点赞系统设计](#点赞系统设计)
-    - [需求点](#需求点)
-    - [存储设计](#存储设计)
-        - [点赞记录表](#点赞记录表)
-        - [点赞计数表](#点赞计数表)
-        - [点赞流水表](#点赞流水表)
-    - [缓存设计](#缓存设计)
-    - [mq设计](#mq设计)
-        - [消息格式](#消息格式)
-    - [流程](#流程)
-        - [点赞流程](#点赞流程)
-        - [取消点赞](#取消点赞)
-        - [批量查询点赞状态](#批量查询点赞状态)
-        - [批量查询点赞数](#批量查询点赞数)
+  - [需求点](#需求点)
+  - [存储设计](#存储设计)
+    - [点赞记录表](#点赞记录表)
+    - [点赞计数表](#点赞计数表)
+    - [点赞流水表](#点赞流水表)
+  - [缓存设计](#缓存设计)
+  - [mq设计](#mq设计)
+    - [消息格式](#消息格式)
+  - [流程](#流程)
+    - [点赞流程](#点赞流程)
+    - [取消点赞](#取消点赞)
+    - [批量查询点赞状态](#批量查询点赞状态)
+    - [批量查询点赞数](#批量查询点赞数)
 - [用户关注系统设计](#用户关注系统设计)
-    - [需求点](#需求点-1)
-    - [存储设计](#存储设计-1)
-        - [关系表](#关系表)
-        - [计数表](#计数表)
-        - [关注流水表](#关注流水表)
-    - [缓存设计](#缓存设计-1)
-        - [关注状态缓存](#关注状态缓存)
-    - [mq设计](#mq设计-1)
-        - [消息格式](#消息格式-1)
-    - [详细设计](#详细设计)
-        - [关注](#关注)
-        - [取消关注](#取消关注)
-        - [获取关注数](#获取关注数)
-        - [批量获取关注状态](#批量获取关注状态)
-        - [分页获取关注列表](#分页获取关注列表)
-        - [获取朋友列表](#获取朋友列表)
-        - [分页获取粉丝列表](#分页获取粉丝列表)
-        - [获取关注数/获取粉丝数](#获取关注数获取粉丝数)
-        - [查询全量粉丝列表](#查询全量粉丝列表)
-    - [优化](#优化)
-        - [热点检测工具](#热点检测工具)
+  - [需求点](#需求点-1)
+  - [存储设计](#存储设计-1)
+    - [关系表](#关系表)
+    - [计数表](#计数表)
+    - [关注流水表](#关注流水表)
+  - [缓存设计](#缓存设计-1)
+    - [关注状态缓存](#关注状态缓存)
+  - [mq设计](#mq设计-1)
+    - [消息格式](#消息格式-1)
+  - [详细设计](#详细设计)
+    - [关注](#关注)
+    - [取消关注](#取消关注)
+    - [获取关注数](#获取关注数)
+    - [批量获取关注状态](#批量获取关注状态)
+    - [分页获取关注列表](#分页获取关注列表)
+    - [获取朋友列表](#获取朋友列表)
+    - [分页获取粉丝列表](#分页获取粉丝列表)
+    - [获取关注数/获取粉丝数](#获取关注数获取粉丝数)
+    - [查询全量粉丝列表](#查询全量粉丝列表)
+  - [优化](#优化)
+    - [热点检测工具](#热点检测工具)
 - [动态系统设计](#动态系统设计)
-    - [需求点](#需求点-2)
-    - [存储设计](#存储设计-2)
-        - [动态表](#动态表)
-        - [redis](#redis)
-    - [详细设计](#详细设计-1)
-        - [动态发布](#动态发布)
-    - [推送系统设计](#推送系统设计)
-        - [推模式的问题](#推模式的问题)
-        - [推拉结合](#推拉结合)
-            - [方案1. 区分大v/小v(按照粉丝数),](#方案1-区分大v小v按照粉丝数)
-        - [方案2 按照用户活跃度, 活跃用户推, 不活跃用户不推.](#方案2-按照用户活跃度-活跃用户推-不活跃用户不推)
+  - [需求点](#需求点-2)
+  - [存储设计](#存储设计-2)
+    - [动态内容表 按发布人uid分表](#动态内容表-按发布人uid分表)
+    - [动态发件箱](#动态发件箱)
+    - [动态收件箱](#动态收件箱)
+    - [动态广场index](#动态广场index)
+  - [缓存设计](#缓存设计-2)
+    - [动态内容缓存](#动态内容缓存)
+    - [发件箱index缓存](#发件箱index缓存)
+    - [收件箱index缓存](#收件箱index缓存)
+  - [详细设计](#详细设计-1)
+    - [动态发布](#动态发布)
+  - [推送系统设计](#推送系统设计)
+    - [推模式的问题](#推模式的问题)
+    - [推拉结合](#推拉结合)
+      - [方案1. 区分大v/小v(按照粉丝数),](#方案1-区分大v小v按照粉丝数)
+    - [方案2 按照用户活跃度, 活跃用户推, 不活跃用户不推.](#方案2-按照用户活跃度-活跃用户推-不活跃用户不推)
 - [评论系统设计](#评论系统设计)
-    - [需求点](#需求点-3)
-        - [数据库](#数据库)
-        - [麻烦问题](#麻烦问题)
-        - [缓存](#缓存)
-            - [id缓存](#id缓存)
-            - [评论内容缓存](#评论内容缓存)
-        - [存储设计](#存储设计-3)
-        - [缓存设计](#缓存设计-2)
-    - [详细设计](#详细设计-2)
-        - [按时间获取评论列表 可以用数据库index](#按时间获取评论列表-可以用数据库index)
-        - [按热度获取评论列表 点赞数经常变,所以只能用redis zset](#按热度获取评论列表-点赞数经常变所以只能用redis-zset)
+  - [需求点](#需求点-3)
+    - [数据库](#数据库)
+    - [麻烦问题](#麻烦问题)
+    - [缓存](#缓存)
+      - [id缓存](#id缓存)
+      - [评论内容缓存](#评论内容缓存)
+    - [存储设计](#存储设计-3)
+    - [缓存设计](#缓存设计-3)
+  - [详细设计](#详细设计-2)
+    - [按时间获取评论列表 可以用数据库index](#按时间获取评论列表-可以用数据库index)
+    - [按热度获取评论列表 点赞数经常变,所以只能用redis zset](#按热度获取评论列表-点赞数经常变所以只能用redis-zset)
 - [bilibili](#bilibili)
 
 # 点赞系统设计
@@ -113,6 +119,7 @@ create table likes_cnt
 `select cnt from likes_cnt where eid in (12,34) and biz=1;`
 
 ### 点赞流水表
+
 ```sql
 
 create table like_log
@@ -504,16 +511,16 @@ end = min(offset + pageSize, follow_cnt)
 
 ## 存储设计
 
-### 动态表
+### 动态内容表 按发布人uid分表
 
 ```sql
 -- auto-generated definition
-create table feeds
+create table feed_content
 (
-    id             bigint auto_increment comment '主键 snowflake id'
+    id             bigint auto_increment comment '主键 snowflake id 动态id'
         primary key,
     biz            int          default 0                 not null comment '业务id',
-    uid            int          default 0                 not null comment '用户 id',
+    uid            int          default 0                 not null comment '发布者uid',
     content        varchar(255) default ''                not null comment '内容',
     images         varchar(255) default ''                not null comment '逗号分隔的图片url',
     topic_ids      varchar(255) default ''                not null comment '逗号分隔的话题id',
@@ -531,16 +538,65 @@ create index feeds_uid_index
 
 ```
 
-### redis
+### 动态发件箱
 
-缓存动态
+```sql
+create table feed_outbox
+(
+    id          bigint auto_increment comment '主键'
+        primary key,
+    uid         int       default 0,
+    feed_id     bigint    default 0,
+    status      tinyint   default 0,
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP not null
+) comment '动态收件箱';
+
+
+```
+
+### 动态收件箱
+
+```sql
+create table feed_inbox
+(
+    id          bigint auto_increment comment '主键'
+        primary key,
+    from_uid    int       default 0,
+    to_uid      int       default 0,
+    feed_id     bigint    default 0,
+    status      tinyint   default 0,
+    create_time timestamp default CURRENT_TIMESTAMP not null,
+    update_time timestamp default CURRENT_TIMESTAMP not null
+) comment '动态收件箱';
+
+create unique index feed_inbox_index on
+    feed_inbox (to_uid, feed_id desc);
+
+```
+
+### 动态广场index
+
+zset
+
+## 缓存设计
+
+### 动态内容缓存
 
 ```text
-cdn缓存
-内存缓存
+本地缓存 LRU
 redis缓存
-mysql缓存
+mysql
 ```
+
+### 发件箱index缓存
+
+缓存用户最新发的动态id
+更新方式, 删除, 增量重建
+
+### 收件箱index缓存
+
+更新方式, 删除, 增量重建
 
 ## 详细设计
 
