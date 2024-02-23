@@ -10,10 +10,13 @@
             <result property="followCnt" column="follow_cnt" jdbcType="INTEGER"/>
             <result property="fansCnt" column="fans_cnt" jdbcType="INTEGER"/>
             <result property="friendCnt" column="friend_cnt" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,uid,follow_cnt,
-        fans_cnt,friend_cnt
+        fans_cnt,friend_cnt,create_time,
+        update_time
     </sql>
 </mapper>

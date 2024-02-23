@@ -9,12 +9,12 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * 关注计数表
- * @TableName follow_cnt
+ * 关注流水表
+ * @TableName follow_log
  */
-@TableName(value ="follow_cnt")
+@TableName(value ="follow_log")
 @Data
-public class FollowCnt implements Serializable {
+public class FollowLog implements Serializable {
     /**
      * 主键
      */
@@ -22,34 +22,34 @@ public class FollowCnt implements Serializable {
     private Long id;
 
     /**
+     * 应用id
+     */
+    private Integer appId;
+
+    /**
      * 用户id
      */
     private Integer uid;
 
     /**
-     * 关注数
+     * 目标id
      */
-    private Integer followCnt;
+    private Integer target;
 
     /**
-     * 粉丝数
+     * 客户端ip
      */
-    private Integer fansCnt;
+    private Long ip;
 
     /**
-     * 朋友数
+     * 1-关注，2-取消关注
      */
-    private Integer friendCnt;
+    private Integer opType;
 
     /**
      * 创建时间
      */
     private Date createTime;
-
-    /**
-     * 更新时间
-     */
-    private Date updateTime;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

@@ -1,0 +1,32 @@
+server:
+  port: 8885
+
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/user
+    username: root
+    password: '2533'
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+    timeout: 1000
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+rocketmq:
+
+  producer:
+    group: follow-producer-group
+
+  custom:
+    follow-topic: follow
+  name-server: 192.168.0.102:9876
+
+
+
+

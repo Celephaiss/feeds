@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 
 /**
 * @author ailu
-* @description 针对表【follow_cnt】的数据库操作Service实现
-* @createDate 2024-02-23 12:03:02
+* @description 针对表【follow_cnt(关注计数表)】的数据库操作Service实现
+* @createDate 2024-02-23 20:05:22
 */
 @Service
 public class FollowCntServiceImpl extends ServiceImpl<FollowCntMapper, FollowCnt>

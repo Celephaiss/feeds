@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 /**
 * @author ailu
 * @description 针对表【followee】的数据库操作Service实现
-* @createDate 2024-02-23 12:03:02
+* @createDate 2024-02-23 20:05:22
 */
 @Service
 public class FolloweeServiceImpl extends ServiceImpl<FolloweeMapper, Followee>
