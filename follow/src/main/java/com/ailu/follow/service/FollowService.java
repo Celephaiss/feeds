@@ -2,7 +2,6 @@ package com.ailu.follow.service;
 
 import com.ailu.follow.model.redis.FollowCache;
 import com.ailu.follow.mq.FollowProducer;
-import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +16,6 @@ public class FollowService {
     @Autowired
     private RedissonClient redissonClient;
 
-    @Autowired
-    private FollowService followService;
 
     @Autowired
     FollowProducer followProducer;
@@ -33,23 +30,36 @@ public class FollowService {
 
 
     // 关注
-    private void follow(Integer fromUid, Integer toUid) {
+    public void follow(Integer fromUid, Integer toUid) {
 
+        // 检查是否已经关注
         boolean followStatus = getFollowStatus(fromUid, toUid);
         if (followStatus) {
             return;
         }
 
-
+        // 发送关注消息
         followProducer.sendFollowMessage(fromUid, toUid);
 
+        // 更新缓存
         followCache.follow(fromUid, toUid);
 
     }
 
     // 取消关注
-    private void unFollow(Integer fromUid, Integer toUid) {
+    public void unFollow(Integer fromUid, Integer toUid) {
 
+            // 检查是否已经关注
+            boolean followStatus = getFollowStatus(fromUid, toUid);
+            if (!followStatus) {
+                return;
+            }
+
+            // 发送取消关注消息
+            followProducer.sendUnFollowMessage(fromUid, toUid);
+
+            // 更新缓存
+            followCache.unFollow(fromUid, toUid);
     }
 
     // 获取关注者列表

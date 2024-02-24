@@ -160,5 +160,15 @@ public class FollowCache {
         return 3;
     }
 
+    // clear count cache after mysql update
+    public void clearCountCache(Integer fromUid, Integer toUid) {
+        redisTemplate.delete(followCntKey(fromUid));
+        redisTemplate.delete(fansCntKey(fromUid));
+        redisTemplate.delete(friendCntKey(fromUid));
+
+        // TODO
+
+    }
+
 
 }
