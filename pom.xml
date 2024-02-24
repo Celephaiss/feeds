@@ -8,6 +8,7 @@
     <modules>
         <module>follow</module>
         <module>feed</module>
+        <module>common</module>
     </modules>
 
     <packaging>pom</packaging>

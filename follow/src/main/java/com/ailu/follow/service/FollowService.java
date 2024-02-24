@@ -1,5 +1,7 @@
 package com.ailu.follow.service;
 
+import com.ailu.follow.model.redis.FollowCache;
+import com.ailu.follow.mq.FollowProducer;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.redisson.api.RedissonClient;
@@ -19,55 +21,74 @@ public class FollowService {
     private FollowService followService;
 
     @Autowired
-    RocketMQTemplate rocketMQTemplate;
+    FollowProducer followProducer;
+
+
+    @Autowired
+    FollowCache followCache;
+
+    private boolean getFollowStatus(Integer fromUid, Integer toUid) {
+        return false;
+    }
+
 
     // 关注
-    private void Follow(Integer fromUid, Integer toUid) {
+    private void follow(Integer fromUid, Integer toUid) {
+
+        boolean followStatus = getFollowStatus(fromUid, toUid);
+        if (followStatus) {
+            return;
+        }
+
+
+        followProducer.sendFollowMessage(fromUid, toUid);
+
+        followCache.follow(fromUid, toUid);
 
     }
 
     // 取消关注
-    private void UnFollow(Integer fromUid, Integer toUid) {
+    private void unFollow(Integer fromUid, Integer toUid) {
 
     }
 
     // 获取关注者列表
-    private List<Integer> GetFollowers(Integer uid) {
+    private List<Integer> getFollowers(Integer uid) {
         return null;
     }
 
     // 获取粉丝列表
-    private List<Integer> GetFans(Integer uid) {
+    private List<Integer> getFans(Integer uid) {
         return null;
     }
 
     // 获取关注数
-    private Integer GetFollowCount(Integer uid) {
+    private Integer getFollowCount(Integer uid) {
         return 0;
     }
 
     // 获取粉丝数
-    private Integer GetFansCount(Integer uid) {
+    private Integer getFansCount(Integer uid) {
         return 0;
     }
 
     // 获取朋友数
-    private @NotNull Integer GetFriendsCount(Integer uid) {
+    private @NotNull Integer getFriendsCount(Integer uid) {
         return 0;
     }
 
     // 判断是否关注
-    private @NotNull Boolean IsFollow(Integer fromUid, Integer toUid) {
+    private @NotNull Boolean isFollow(Integer fromUid, Integer toUid) {
         return false;
     }
 
     // 判断是否关注, 批量
-    private List<Boolean> IsFollow(Integer fromUid, List<Integer> toUids) {
+    private List<Boolean> isFollow(Integer fromUid, List<Integer> toUids) {
         return null;
     }
 
     // 获取计数FollowCntVo
-    private FollowCntVo GetFollowCntVo(Integer uid) {
+    private FollowCntVo getFollowCntVo(Integer uid) {
         return FollowCntVo.builder().build();
     }
 

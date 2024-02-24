@@ -327,8 +327,13 @@ expire
 更新方式 因为重建的代码比较高, 所以不采取更新mysql时删除的方式
 
 
-关注数 cnt:follower:{uid}  更新mysql时删除redis
+关注数 cnt:follow:{uid}  更新mysql时删除redis
 粉丝数 cnt:fans:{uid} 更新mysql时删除redis
+朋友数 cnt:friend:{uid} 更新mysql时删除redis
+
+```
+
+```text
 
 a的关注列表 + 1 zset zadd
 b的粉丝列表 + 1 zset zadd
@@ -340,17 +345,17 @@ b的粉丝列表 + 1 zset zadd
 ### 关注状态缓存
 
 ```text
-key rel_follow:{a}_b
+key rel:follow:{a}_b
 value 0 a关注b
 expire 1d
 更新方式 mysql更新后, 删除redis
 
-key rel_friend:{a}_b
+key rel:friend:{a}_b
 value 0 a与b不是朋友, a与b是朋友
 expire 1d
 更新方式 mysql更新后, 删除redis
 
-key rel_bf:{a}
+key rel:follow:bf:{a}
 a关注b时, 把b加入a的布隆过滤器
 
 ```

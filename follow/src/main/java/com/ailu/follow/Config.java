@@ -7,4 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan(basePackages = "com.ailu.common")
 public class Config {
 
+    public static void main(String[] args) {
+    }
+
 }
